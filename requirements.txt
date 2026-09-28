@@ -1,0 +1,8 @@
+streamlit>=1.50,<2
+pymupdf>=1.24,<2
+pydantic>=2.7,<3
+openai>=1.35,<3
+python-dotenv>=1.0,<2
+reportlab>=4.2,<5
+pandas>=2.2,<4
+pytest>=8,<9

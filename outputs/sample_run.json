@@ -1,0 +1,360 @@
+{
+  "rfp_run_id": "RFP-20260927T125453Z-52FE33A9",
+  "created_at": "2026-09-27T12:54:53+00:00",
+  "status": "COMPLETED",
+  "mode": "DEMO",
+  "criteria": [
+    {
+      "criterion_id": 1,
+      "name": "Technical Capability",
+      "description": "Architecture, integrations, scalability, and technical fit.",
+      "weight": 30.0,
+      "max_score": 10.0,
+      "is_active": 1
+    },
+    {
+      "criterion_id": 2,
+      "name": "Implementation Plan",
+      "description": "Timeline, milestones, staffing, and delivery risk plan.",
+      "weight": 20.0,
+      "max_score": 10.0,
+      "is_active": 1
+    },
+    {
+      "criterion_id": 3,
+      "name": "Commercial Value",
+      "description": "Pricing clarity, total cost, and commercial assumptions.",
+      "weight": 20.0,
+      "max_score": 10.0,
+      "is_active": 1
+    },
+    {
+      "criterion_id": 4,
+      "name": "Security & Compliance",
+      "description": "Security controls, privacy, compliance, and auditability.",
+      "weight": 20.0,
+      "max_score": 10.0,
+      "is_active": 1
+    },
+    {
+      "criterion_id": 5,
+      "name": "Support & Experience",
+      "description": "Support model, relevant experience, and references.",
+      "weight": 10.0,
+      "max_score": 10.0,
+      "is_active": 1
+    }
+  ],
+  "suppliers": [
+    {
+      "supplier_name": "NexaWorks",
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "score": 8.6,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Technical Capability.",
+          "evidence": "Proposal text: The price is mid-range and assumptions are clearly itemized. Its technical design is credible, though some architecture control, capability, or commercial term should be assumed.",
+          "benchmark": 9.3,
+          "gap": -0.7000000000000011,
+          "relative_performance_pct": 92.47311827956987
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "score": 9.6,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Implementation Plan.",
+          "evidence": "Proposal text: A balanced delivery plan with sustained operational support NexaWorks presents a balanced, phased proposal with a strong implementation method and extensive post-launch support.",
+          "benchmark": 9.6,
+          "gap": 0.0,
+          "relative_performance_pct": 100.0
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "score": 8.1,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Commercial Value.",
+          "evidence": "Proposal text: NexaWorks | Delivery and Commercial Proposal control, capability, or commercial term should be assumed.",
+          "benchmark": 9.6,
+          "gap": -1.5,
+          "relative_performance_pct": 84.375
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "score": 8.3,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Security & Compliance.",
+          "evidence": "Proposal text: and security review (10-12); user acceptance and training (13-15); phased launch (16-17); handover (18). Two weeks of Security Controls",
+          "benchmark": 9.5,
+          "gap": -1.1999999999999993,
+          "relative_performance_pct": 87.36842105263159
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "score": 9.6,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Support & Experience.",
+          "evidence": "Proposal text: A balanced delivery plan with sustained operational support NexaWorks presents a balanced, phased proposal with a strong implementation method and extensive post-launch support.",
+          "benchmark": 9.6,
+          "gap": 0.0,
+          "relative_performance_pct": 100.0
+        }
+      ],
+      "risks": [
+        "Commercial assumptions should be confirmed during negotiation."
+      ],
+      "overall_summary": "Deterministic DEMO evaluation of NexaWorks. Review the cited proposal evidence and criterion details.",
+      "warnings": [],
+      "submission_date": "2025-01-09",
+      "experience_rating": 8.0,
+      "absolute_score": 87.4,
+      "ppi": 92.09061969439728,
+      "final_rank": 1
+    },
+    {
+      "supplier_name": "Apex Systems",
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "score": 9.3,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Technical Capability.",
+          "evidence": "Proposal text: data domains. The design is technically detailed and security-forward. Delivery is planned over 24 weeks, and the fixed control, capability, or commercial term should be assumed.",
+          "benchmark": 9.3,
+          "gap": 0.0,
+          "relative_performance_pct": 100.0
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "score": 7.6,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Implementation Plan.",
+          "evidence": "Proposal text: data domains. The design is technically detailed and security-forward. Delivery is planned over 24 weeks, and the fixed implementation price is the highest in this fictional competition.",
+          "benchmark": 9.6,
+          "gap": -2.0,
+          "relative_performance_pct": 79.16666666666666
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "score": 6.1,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Commercial Value.",
+          "evidence": "Proposal text: Apex Systems | Delivery and Commercial Proposal control, capability, or commercial term should be assumed.",
+          "benchmark": 9.6,
+          "gap": -3.5,
+          "relative_performance_pct": 63.541666666666664
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "score": 9.5,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Security & Compliance.",
+          "evidence": "Proposal text: data domains. The design is technically detailed and security-forward. Delivery is planned over 24 weeks, and the fixed adapter (10-16); security testing and migration rehearsal (17-21); acceptance and launch (22-24). The schedule is moderate",
+          "benchmark": 9.5,
+          "gap": 0.0,
+          "relative_performance_pct": 100.0
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "score": 7.1,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Support & Experience.",
+          "evidence": "Proposal text: The buyer needs a secure, scalable supplier and purchasing workflow that integrates with an existing ERP, supports Support Model",
+          "benchmark": 9.6,
+          "gap": -2.5,
+          "relative_performance_pct": 73.95833333333334
+        }
+      ],
+      "risks": [
+        "Premium pricing may exceed the available budget."
+      ],
+      "overall_summary": "Deterministic DEMO evaluation of Apex Systems. Review the cited proposal evidence and criterion details.",
+      "warnings": [],
+      "submission_date": "2025-01-10",
+      "experience_rating": 8.5,
+      "absolute_score": 81.39999999999999,
+      "ppi": 85.9375,
+      "final_rank": 2
+    },
+    {
+      "supplier_name": "Orbit Digital",
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "score": 7.1,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Technical Capability.",
+          "evidence": "Proposal text: control, capability, or commercial term should be assumed.",
+          "benchmark": 9.3,
+          "gap": -2.200000000000001,
+          "relative_performance_pct": 76.34408602150536
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "score": 6.7,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Implementation Plan.",
+          "evidence": "Proposal text: approach is practical, but the integration plan is high-level and several interface details are left for later discovery. Implementation Approach and Timeline",
+          "benchmark": 9.6,
+          "gap": -2.8999999999999995,
+          "relative_performance_pct": 69.79166666666667
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "score": 7.9,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Commercial Value.",
+          "evidence": "Proposal text: Orbit Digital | Delivery and Commercial Proposal control, capability, or commercial term should be assumed.",
+          "benchmark": 9.6,
+          "gap": -1.6999999999999993,
+          "relative_performance_pct": 82.29166666666667
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "score": 7.4,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Security & Compliance.",
+          "evidence": "Proposal text: Security Controls Orbit describes encrypted communications, role-based access, SSO compatibility, security testing before launch, and a",
+          "benchmark": 9.5,
+          "gap": -2.0999999999999996,
+          "relative_performance_pct": 77.89473684210527
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "score": 9.2,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Support & Experience.",
+          "evidence": "Proposal text: Experienced transformation team for a dependable rollout Orbit Digital brings substantial delivery experience and strong customer references, with a mid-priced proposal. The delivery",
+          "benchmark": 9.6,
+          "gap": -0.40000000000000036,
+          "relative_performance_pct": 95.83333333333333
+        }
+      ],
+      "risks": [
+        "The integration approach is described at a high level."
+      ],
+      "overall_summary": "Deterministic DEMO evaluation of Orbit Digital. Review the cited proposal evidence and criterion details.",
+      "warnings": [],
+      "submission_date": "2025-01-11",
+      "experience_rating": 9.5,
+      "absolute_score": 74.5,
+      "ppi": 78.48217317487267,
+      "final_rank": 3
+    },
+    {
+      "supplier_name": "BrightPath Tech",
+      "criteria": [
+        {
+          "criterion_id": 1,
+          "name": "Technical Capability",
+          "score": 7.2,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Technical Capability.",
+          "evidence": "Proposal text: standard features. It provides limited detail about compliance, technical integration, and the team's prior delivery history. system. A direct API connector may be added after technical discovery. The proposal does not include an integration",
+          "benchmark": 9.3,
+          "gap": -2.1000000000000005,
+          "relative_performance_pct": 77.41935483870968
+        },
+        {
+          "criterion_id": 2,
+          "name": "Implementation Plan",
+          "score": 9.1,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Implementation Plan.",
+          "evidence": "Proposal text: Implementation Approach and Timeline Total fixed implementation",
+          "benchmark": 9.6,
+          "gap": -0.5,
+          "relative_performance_pct": 94.79166666666666
+        },
+        {
+          "criterion_id": 3,
+          "name": "Commercial Value",
+          "score": 9.6,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Commercial Value.",
+          "evidence": "Proposal text: BrightPath Tech | Delivery and Commercial Proposal control, capability, or commercial term should be assumed.",
+          "benchmark": 9.6,
+          "gap": 0.0,
+          "relative_performance_pct": 100.0
+        },
+        {
+          "criterion_id": 4,
+          "name": "Security & Compliance",
+          "score": 4.4,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Security & Compliance.",
+          "evidence": "Proposal text: standard features. It provides limited detail about compliance, technical integration, and the team's prior delivery history. Security Controls",
+          "benchmark": 9.5,
+          "gap": -5.1,
+          "relative_performance_pct": 46.31578947368421
+        },
+        {
+          "criterion_id": 5,
+          "name": "Support & Experience",
+          "score": 5.2,
+          "max_score": 10.0,
+          "justification": "Demo score based on the supplied synthetic proposal profile for Support & Experience.",
+          "evidence": "Proposal text: Launch support APIs, data cleansing, and travel are excluded. Optional support after the first month costs $1,500 per month. Taxes and",
+          "benchmark": 9.6,
+          "gap": -4.3999999999999995,
+          "relative_performance_pct": 54.16666666666667
+        }
+      ],
+      "risks": [
+        "Compliance details and delivery experience are limited."
+      ],
+      "overall_summary": "Deterministic DEMO evaluation of BrightPath Tech. Review the cited proposal evidence and criterion details.",
+      "warnings": [],
+      "submission_date": "2025-01-12",
+      "experience_rating": 3.0,
+      "absolute_score": 73.0,
+      "ppi": 76.86396434634975,
+      "final_rank": 4
+    }
+  ],
+  "ranking": [
+    {
+      "rank": 1,
+      "supplier_name": "NexaWorks",
+      "ppi": 92.09061969439728
+    },
+    {
+      "rank": 2,
+      "supplier_name": "Apex Systems",
+      "ppi": 85.9375
+    },
+    {
+      "rank": 3,
+      "supplier_name": "Orbit Digital",
+      "ppi": 78.48217317487267
+    },
+    {
+      "rank": 4,
+      "supplier_name": "BrightPath Tech",
+      "ppi": 76.86396434634975
+    }
+  ],
+  "tie_break_rules": [
+    "Higher Peer Performance Index (PPI) first.",
+    "Earlier submission date first.",
+    "Higher historical experience rating first.",
+    "Supplier name ascending alphabetically (case-insensitive).",
+    "Sequential ranks are assigned only after the complete sort."
+  ],
+  "warnings": []
+}
