@@ -7,7 +7,7 @@ from typing import Any
 
 def validate_supplier_metadata(inputs: list[dict[str, Any]]) -> None:
     if not inputs:
-        raise ValueError("Upload at least one supplier PDF.")
+        raise ValueError("Upload at least one supplier proposal document.")
     names: set[str] = set()
     for index, item in enumerate(inputs, 1):
         name = item.get("supplier_name")
@@ -31,4 +31,4 @@ def validate_supplier_metadata(inputs: list[dict[str, Any]]) -> None:
         if not 0 <= experience <= 10:
             raise ValueError(f"{name.strip()}: experience rating must be from 0 to 10.")
         if not isinstance(item.get("pdf_bytes"), bytes) or not item["pdf_bytes"]:
-            raise ValueError(f"{name.strip()}: PDF file is empty or missing.")
+            raise ValueError(f"{name.strip()}: proposal document is empty or missing.")

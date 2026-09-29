@@ -7,7 +7,8 @@ from typing import Any, Callable
 
 from rfp_agents.evaluation_agent import EvaluationAgentError, evaluate
 from database.database import create_run, persist_results, save_run_export, update_run_status
-from tools.pdf_extractor import extract_pdf_text
+from tools.document_extractor import extract_document_text
+from tools.evidence_retriever import retrieve_criterion_evidence
 from tools.metadata import validate_supplier_metadata
 from tools.ranking import TIE_BREAK_RULES, rank_suppliers
 from tools.validator import validate_evaluation
@@ -31,16 +32,20 @@ def run_evaluation(inputs: list[dict[str, Any]], criteria: list[dict[str, Any]],
         for index, entry in enumerate(inputs):
             name = entry["supplier_name"].strip()
             if progress:
-                progress(index, "Extracting PDF", name)
-            text = extract_pdf_text(entry["pdf_bytes"])
+                progress(index, "Extracting proposal", name)
+            text = extract_document_text(entry["pdf_bytes"], entry.get("filename", "proposal.pdf"))
+            if progress:
+                progress(index, "Retrieving criterion evidence", name)
+            evaluation_context, retrieval_audit = retrieve_criterion_evidence(text, criteria)
             if progress:
                 progress(index, "Evaluating proposal", name)
-            raw, mode = evaluate(name, criteria, text)
+            raw, mode = evaluate(name, criteria, evaluation_context)
             modes.add(mode)
             if progress:
                 progress(index, "Validating AI output", name)
             result = validate_evaluation(raw, criteria, name)
             result.update({"submission_date": entry["submission_date"], "experience_rating": float(entry["experience_rating"])})
+            result["retrieval_audit"] = retrieval_audit
             normalized.append(result)
             if progress:
                 progress(index + 1, "Supplier evaluated", name)

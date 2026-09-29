@@ -63,7 +63,9 @@ def demo_evaluation(supplier_name: str, criteria: list[dict[str, Any]], document
 
 def _demo_evidence(criterion: str, supplier_name: str, text: str) -> str:
     terms = criterion.lower().replace("&", " ").split()
-    lines = [line.strip() for line in text.splitlines() if any(term in line.casefold() for term in terms)]
+    lines = [line.strip() for line in text.splitlines()
+             if line.strip() and not line.lstrip().startswith("[Criterion:")
+             and any(term in line.casefold() for term in terms)]
     if lines:
         return "Proposal text: " + " ".join(lines[:2])[:380]
     return f"Synthetic proposal for {supplier_name}; see the {criterion} section."

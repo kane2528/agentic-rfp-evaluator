@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 from datetime import date, datetime
+from html import escape
 from pathlib import Path
 
 import pandas as pd
@@ -49,6 +50,12 @@ h2 { margin-top: 1.5rem; }
 [data-testid="stExpander"] { background: white; border: 1px solid #e4eaf1; border-radius: 12px; }
 [data-testid="stAlert"] { border-radius: 12px; }
 [data-testid="stProgressBar"] > div > div { background: #0e7490; }
+[data-baseweb="tab-list"] { gap: .35rem; background: #eaf0f6; padding: .35rem; border-radius: 12px; }
+[data-baseweb="tab"] { border-radius: 9px; padding: .45rem .9rem; }
+.result-podium { height: 100%; padding: 18px; border: 1px solid #dce6ef; border-radius: 15px; text-align: center; background: linear-gradient(145deg,#fff,#f1f8fb); }
+.result-podium .medal { font-size: 1.55rem; }
+.result-podium .supplier { margin-top: 6px; color: #14263d; font-weight: 750; }
+.result-podium .score { margin-top: 3px; color: #64748b; font-size: .88rem; }
 [data-testid="stSidebar"] { background: #10263f; }
 [data-testid="stSidebar"] * { color: #e2e8f0; }
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color: #9db2c6; }
@@ -129,7 +136,7 @@ def criteria_page() -> None:
 
 def supplier_input_page() -> None:
     st.header("Supplier input")
-    st.markdown('<p class="section-note">Upload multiple text-based RFP PDFs and provide consistent metadata for every supplier.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-note">Upload searchable PDF or PPTX proposals and provide consistent metadata for every supplier.</p>', unsafe_allow_html=True)
     active_run_id = st.session_state.get("active_run_id")
     if active_run_id:
         saved_run = get_run(active_run_id)
@@ -145,7 +152,7 @@ def supplier_input_page() -> None:
         st.error("No active criteria. Open Criteria and activate at least one criterion.")
     elif abs(weight_sum - 100) > 1e-6:
         st.warning(f"Active weights total {weight_sum:g}%. They must total 100% before an evaluation can run.")
-    uploads = st.file_uploader("Supplier proposal PDFs", type=["pdf"], accept_multiple_files=True, help="Upload searchable PDFs. Image-only scans need OCR first.")
+    uploads = st.file_uploader("Supplier proposal documents", type=["pdf", "pptx"], accept_multiple_files=True, help="Upload text-based PDFs or PowerPoint presentations. Scanned PDFs need OCR first; legacy .ppt files are not supported.")
     metadata = []
     problems: list[str] = []
     if uploads:
@@ -164,7 +171,7 @@ def supplier_input_page() -> None:
                     problems.append(f"{name or upload.name}: submission date cannot be in the future.")
                 if upload.size == 0:
                     problems.append(f"{upload.name}: file is empty.")
-                metadata.append({"supplier_name": name.strip(), "submission_date": submitted.isoformat(), "experience_rating": rating, "pdf_bytes": upload.getvalue()})
+                metadata.append({"supplier_name": name.strip(), "submission_date": submitted.isoformat(), "experience_rating": rating, "filename": upload.name, "pdf_bytes": upload.getvalue()})
     if metadata:
         normalized_names = [m["supplier_name"].casefold() for m in metadata]
         if len(normalized_names) != len(set(normalized_names)):
@@ -177,13 +184,15 @@ def supplier_input_page() -> None:
     if st.button("Evaluate Suppliers", type="primary", disabled=not uploads or bool(problems) or not criteria or abs(weight_sum - 100) > 1e-6, width="stretch"):
         bar = st.progress(0, text="Preparing evaluation batch…")
         status = st.empty()
-        stages = ["Extracting PDF", "Evaluating proposal", "Validating AI output", "Calculating scores and criterion benchmarks", "Ranking suppliers", "Saving results"]
+        stages = ["Extracting proposal", "Retrieving criterion evidence", "Evaluating proposal", "Validating AI output", "Calculating scores and criterion benchmarks", "Ranking suppliers", "Saving results"]
         def on_progress(index: int, stage: str, detail: str) -> None:
-            total_steps = max(1, len(metadata) * 3 + 3)
-            if stage in stages[:3]:
-                pct = min(0.58, (index * 3 + stages[:3].index(stage) + 1) / total_steps)
+            supplier_stage = {"Extracting proposal": 0, "Retrieving criterion evidence": 1,
+                              "Evaluating proposal": 2, "Validating AI output": 3}
+            if stage in supplier_stage:
+                completed_steps = index * len(supplier_stage) + supplier_stage[stage] + 1
+                pct = completed_steps / max(1, len(metadata) * len(supplier_stage)) * 0.66
             else:
-                pct = {"Calculating scores and criterion benchmarks": .68, "Ranking suppliers": .82, "Saving results": .94}.get(stage, .5)
+                pct = {"Calculating scores and criterion benchmarks": .74, "Ranking suppliers": .86, "Saving results": .96}.get(stage, .5)
             bar.progress(pct, text=f"{stage} · {detail}")
             status.caption("Workflow: " + " → ".join(stages))
         try:
@@ -205,49 +214,124 @@ def show_run(run: dict) -> None:
         st.warning("DEMO MODE · deterministic synthetic scoring is active. No LLM API key was used.")
     elif mode in ("LLM", "MIXED"):
         st.success(f"Evaluation mode: {mode} · LLM judgments were normalized before deterministic scoring.")
-    if suppliers:
-        a, b, c, d = st.columns(4)
-        with a: metric("Suppliers", str(len(suppliers)))
-        with b: metric("Top PPI", f"{suppliers[0]['ppi']:.2f}%")
-        with c: metric("Top absolute score", f"{suppliers[0]['absolute_score']:.2f}/100")
-        with d: metric("Run status", run.get("status", "COMPLETED"))
-        board = pd.DataFrame([{"Rank": s["final_rank"], "Supplier": s["supplier_name"], "Absolute score": round(s["absolute_score"], 2), "PPI": round(s["ppi"], 2), "Submission date": s["submission_date"], "Experience rating": s["experience_rating"]} for s in suppliers])
-        st.dataframe(board, hide_index=True, width="stretch", column_config={"Rank": st.column_config.NumberColumn(format="%d"), "PPI": st.column_config.ProgressColumn("PPI", min_value=0, max_value=100, format="%.2f%%")})
-        st.caption("Tie-break order: higher PPI → earlier submission date → higher historical experience rating → supplier name A–Z. Ranks are assigned after the complete stable sort.")
-        st.subheader("Detailed scorecards")
-        for supplier in suppliers:
-            title = f"#{supplier['final_rank']} · {supplier['supplier_name']} — PPI {supplier['ppi']:.2f}%"
-            with st.expander(title, expanded=(supplier["final_rank"] == 1)):
-                x, y, z = st.columns(3)
-                x.metric("Absolute score", f"{supplier['absolute_score']:.2f} / 100")
-                y.metric("Submission date", supplier["submission_date"])
-                z.metric("Experience rating", f"{supplier['experience_rating']:.1f} / 10")
-                details = pd.DataFrame([{"Criterion": c["name"], "Score": c["score"], "Maximum": c["max_score"], "Weight %": next((cr["weight"] for cr in run["criteria"] if cr["criterion_id"] == c["criterion_id"]), 0), "Benchmark": c["benchmark"], "Gap": c["gap"], "Relative %": c["relative_performance_pct"], "Evidence": c["evidence"], "Justification": c["justification"]} for c in supplier["criteria"]])
-                st.dataframe(details, hide_index=True, width="stretch", column_config={"Score": st.column_config.NumberColumn(format="%.2f"), "Relative %": st.column_config.NumberColumn(format="%.2f%%"), "Gap": st.column_config.NumberColumn(format="%.2f")})
-                st.markdown("**Overall summary**")
-                st.write(supplier["overall_summary"])
-                st.markdown("**Risks**")
-                if supplier["risks"]:
-                    for risk in supplier["risks"]: st.markdown(f"- {risk}")
-                else:
-                    st.write("No risks were identified by the Evaluation Agent.")
-                if supplier["warnings"]:
-                    st.warning("Validation warnings\n\n" + "\n".join(f"- {warning}" for warning in supplier["warnings"]))
-                else:
-                    st.success("No validation warnings for this supplier.")
-        st.subheader("Run details")
-        x, y, z = st.columns(3)
-        x.code(run["rfp_run_id"])
-        y.write(f"Created: {run['created_at']}")
-        z.write(f"Suppliers: {len(suppliers)} · Status: {run.get('status', 'COMPLETED')}")
-        all_warnings = run.get("warnings", [])
-        st.write(f"Validation warnings: **{len(all_warnings)}**")
-        with st.expander("Tie-break rules and scoring policy"):
-            for rule in run.get("tie_break_rules", []): st.markdown(f"- {rule}")
-            st.write("PPI is the active-weighted average of each criterion's relative performance percentage. If a criterion benchmark is zero, every supplier receives a neutral 100% relative value for that criterion; no division by zero occurs.")
-        st.download_button("Download complete result JSON", data=json.dumps(run, indent=2, ensure_ascii=False), file_name=f"{run['rfp_run_id']}.json", mime="application/json", type="primary")
-    else:
+    if not suppliers:
         st.info("This run has no completed supplier results.")
+        return
+
+    winner = suppliers[0]
+    a, b, c, d = st.columns(4)
+    with a: metric("Suppliers evaluated", str(len(suppliers)))
+    with b: metric("Recommended supplier", winner["supplier_name"])
+    with c: metric("Winning PPI", f"{winner['ppi']:.2f}%")
+    with d: metric("Absolute score", f"{winner['absolute_score']:.2f}/100")
+
+    st.subheader("Top performers")
+    podium = st.columns(min(3, len(suppliers)))
+    medals = ["🥇", "🥈", "🥉"]
+    for column, supplier, medal in zip(podium, suppliers[:3], medals):
+        with column:
+            st.markdown(
+                f'<div class="result-podium"><div class="medal">{medal}</div>'
+                f'<div class="supplier">{escape(supplier["supplier_name"])}</div>'
+                f'<div class="score">PPI {supplier["ppi"]:.2f}% · Absolute {supplier["absolute_score"]:.2f}</div></div>',
+                unsafe_allow_html=True,
+            )
+
+    leaderboard_tab, comparison_tab, scorecard_tab, audit_tab = st.tabs(
+        ["🏆 Leaderboard", "📊 Comparison", "🔎 Scorecards", "🧾 Audit & export"]
+    )
+    board = pd.DataFrame([{"Rank": s["final_rank"], "Supplier": s["supplier_name"],
+        "Absolute score": round(s["absolute_score"], 2), "PPI": round(s["ppi"], 2),
+        "Submission date": s["submission_date"], "Experience rating": s["experience_rating"]}
+        for s in suppliers])
+
+    with leaderboard_tab:
+        st.dataframe(board, hide_index=True, width="stretch", column_config={
+            "Rank": st.column_config.NumberColumn(format="%d"),
+            "PPI": st.column_config.ProgressColumn("PPI", min_value=0, max_value=100, format="%.2f%%")})
+        st.caption("Tie-break order: higher PPI → earlier submission date → higher historical experience rating → supplier name A–Z. Ranks follow the complete sort.")
+
+    with comparison_tab:
+        overview = board.set_index("Supplier")[["Absolute score", "PPI"]]
+        st.markdown("#### Overall performance")
+        st.bar_chart(overview, horizontal=True, color=["#0e7490", "#67b7c8"])
+        comparison_rows = [{"Criterion": criterion["name"], "Supplier": supplier["supplier_name"],
+            "Relative performance (%)": item["relative_performance_pct"]}
+            for supplier in suppliers for item in supplier["criteria"]
+            for criterion in run["criteria"] if int(criterion["criterion_id"]) == int(item["criterion_id"])]
+        if comparison_rows:
+            relative = pd.DataFrame(comparison_rows).pivot(
+                index="Criterion", columns="Supplier", values="Relative performance (%)")
+            st.markdown("#### Relative performance by criterion")
+            st.bar_chart(relative, horizontal=True)
+
+    with scorecard_tab:
+        selected_name = st.selectbox("Supplier", [s["supplier_name"] for s in suppliers],
+                                     key=f"scorecard_{run['rfp_run_id']}")
+        supplier = next(s for s in suppliers if s["supplier_name"] == selected_name)
+        x, y, z = st.columns(3)
+        x.metric("Final rank", f"#{supplier['final_rank']}")
+        y.metric("Absolute score", f"{supplier['absolute_score']:.2f} / 100")
+        z.metric("Experience rating", f"{supplier['experience_rating']:.1f} / 10")
+        detail = pd.DataFrame([{"Criterion": item["name"], "Score": item["score"],
+            "Maximum": item["max_score"], "Weight %": next((cr["weight"] for cr in run["criteria"]
+            if int(cr["criterion_id"]) == int(item["criterion_id"])), 0), "Benchmark": item["benchmark"],
+            "Gap": item["gap"], "Relative %": item["relative_performance_pct"],
+            "Evidence": item["evidence"], "Justification": item["justification"]}
+            for item in supplier["criteria"]])
+        st.dataframe(detail, hide_index=True, width="stretch", column_config={
+            "Score": st.column_config.NumberColumn(format="%.2f"),
+            "Relative %": st.column_config.ProgressColumn("Relative %", min_value=0, max_value=100, format="%.2f%%"),
+            "Gap": st.column_config.NumberColumn(format="%.2f")})
+        st.markdown("#### Evaluation summary")
+        st.write(supplier["overall_summary"])
+        risk_col, warning_col = st.columns(2)
+        with risk_col:
+            st.markdown("#### Risks")
+            if supplier["risks"]:
+                for risk in supplier["risks"]:
+                    st.markdown(f"- {risk}")
+            else:
+                st.success("No risks were identified.")
+        with warning_col:
+            st.markdown("#### Validation")
+            if supplier["warnings"]:
+                for warning in supplier["warnings"]:
+                    st.warning(warning)
+            else:
+                st.success("No validation warnings.")
+        retrieval_audit = supplier.get("retrieval_audit", [])
+        if retrieval_audit:
+            st.markdown("#### Retrieved proposal evidence")
+            for criterion_audit in retrieval_audit:
+                with st.expander(f"{criterion_audit['criterion_name']} · {len(criterion_audit['retrieved'])} excerpts"):
+                    for excerpt in criterion_audit["retrieved"]:
+                        st.caption(f"Excerpt {excerpt['rank']} · passage {excerpt['chunk_id']} · relevance {excerpt['relevance_score']:.3f}")
+                        st.text(excerpt["text"])
+
+    with audit_tab:
+        x, y, z = st.columns(3)
+        x.markdown(f"**Run ID**  \n`{run['rfp_run_id']}`")
+        y.markdown(f"**Created**  \n{run['created_at']}")
+        z.markdown(f"**Status**  \n{run.get('status', 'COMPLETED')} · {mode}")
+        all_warnings = run.get("warnings", [])
+        st.metric("Validation warnings", len(all_warnings))
+        if all_warnings:
+            with st.expander("Review all validation warnings"):
+                for warning in all_warnings:
+                    st.warning(warning)
+        retrieval_rows = [{"Supplier": supplier["supplier_name"], "Criterion": item["criterion_name"],
+            "Retrieved excerpts": len(item["retrieved"]), "Proposal passages": item["document_chunk_count"]}
+            for supplier in suppliers for item in supplier.get("retrieval_audit", [])]
+        if retrieval_rows:
+            st.markdown("#### Evidence retrieval trace")
+            st.dataframe(pd.DataFrame(retrieval_rows), hide_index=True, width="stretch")
+        with st.expander("Tie-break rules and scoring policy"):
+            for rule in run.get("tie_break_rules", []):
+                st.markdown(f"- {rule}")
+            st.write("Python calculates the absolute weighted score, criterion benchmarks, gaps, relative performance, PPI, and final ranking. PPI is the active-weighted average of criterion relative percentages; a zero benchmark gives every supplier a neutral 100% for that criterion.")
+        st.download_button("Download complete result JSON", data=json.dumps(run, indent=2, ensure_ascii=False),
+            file_name=f"{run['rfp_run_id']}.json", mime="application/json", type="primary", width="stretch")
 
 
 st.sidebar.markdown("## ◈ ProcureIQ")
@@ -268,7 +352,7 @@ if page == "Overview":
     with d: metric("Evaluation mode", "DEMO" if not os.getenv("LLM_API_KEY", "").strip() else os.getenv("LLM_MODEL", "LLM"))
     st.markdown("### Agentic workflow")
     phases = st.columns(6)
-    for col, (n, label) in zip(phases, [("01", "Extract PDF"), ("02", "Evaluate"), ("03", "Validate"), ("04", "Score"), ("05", "Benchmark & rank"), ("06", "Persist & present")]):
+    for col, (n, label) in zip(phases, [("01", "Extract document"), ("02", "Retrieve evidence"), ("03", "Evaluate"), ("04", "Validate"), ("05", "Score"), ("06", "Benchmark & rank"), ("07", "Persist & present")]):
         with col:
             st.markdown(f'<div class="metric-card"><div class="metric-label">STEP {n}</div><div class="workflow-step" style="font-weight:700;margin-top:8px">{label}</div></div>', unsafe_allow_html=True)
     st.markdown("### Get started")

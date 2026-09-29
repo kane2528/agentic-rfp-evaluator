@@ -13,19 +13,21 @@ The supplied PDFs are synthetic teaching examples. They do not represent real su
 ```text
 Streamlit UI
   └── Orchestrator Agent
-       ├── Document Tool (PyMuPDF text extraction)
+       ├── Document Tool (PyMuPDF PDF and python-pptx extraction)
+       ├── Evidence Retrieval Tool (criterion-aware BM25-style excerpts)
        ├── Evaluation Agent (OpenAI-compatible JSON model or deterministic DEMO)
        ├── Validation Tool (Pydantic contract + normalization + warnings)
        ├── Ranking Tool (pure deterministic Python)
        └── SQLite persistence (criteria, run snapshot, complete supplier JSON)
 ```
 
-The run reloads the active criteria from SQLite and snapshots them against a generated `RFP_RUN_ID`. Each proposal then passes through PDF extraction, evaluation, schema validation and normalization. After all proposals are validated, Python calculates scorecards, peer benchmarks, PPI, and the final stable order. SQLite stores the full ranked supplier objects; Streamlit renders the leaderboard, evidence, risks, warnings, run details, and JSON export.
+The run reloads the active criteria from SQLite and snapshots them against a generated `RFP_RUN_ID`. Each proposal passes through PDF or PowerPoint text extraction, lightweight criterion-aware evidence retrieval, evaluation, schema validation and normalization. After all proposals are validated, Python calculates scorecards, peer benchmarks, PPI, and the final stable order. SQLite stores the full ranked supplier objects, including the evidence retrieval trace; Streamlit presents a leaderboard, supplier podium, performance comparisons, scorecards, retrieval audit, warnings, run details, and complete JSON export.
 
 ### Agent and tool responsibilities
 
 - **Orchestrator Agent** controls the sequence and records run status.
-- **Document Tool** only extracts selectable PDF text. It reports empty, corrupt, and image-only PDFs clearly; OCR is not included.
+- **Document Tool** extracts selectable PDF and PPTX text. It reports empty, corrupt, and image-only PDFs clearly; OCR and legacy `.ppt` files are not included.
+- **Evidence Retrieval Tool** uses a small standard-library BM25-style ranker to select criterion-relevant passages from each proposal independently. It adds those excerpts to the evaluation context and stores the retrieved passages and relevance scores in the run audit without adding embedding-model downloads.
 - **Evaluation Agent** scores proposal content against criteria loaded dynamically from SQLite. When configured, it calls an OpenAI-compatible Chat Completions endpoint with JSON mode. With no API key it uses a deterministic synthetic-profile evaluator, visibly labeled DEMO.
 - **Validation Tool** runs Pydantic schema validation, safely parses JSON fences or an embedded JSON object, checks every active criterion, restores missing criteria with a zero score, clips scores, uses the database max score, preserves absent-evidence notices, and retains warnings in the export.
 - **Ranking Tool** and `utils/scoring.py` contain no LLM calls. They perform every business calculation and sort.
@@ -38,7 +40,7 @@ rfp_agents/             # orchestrator and Evaluation Agent (unique package name
 database/               # schema, seed, SQLite operations
 models/                 # Pydantic response contracts
 prompts/                # dynamic evidence-grounded prompt
-tools/                  # PDF, metadata, validation, ranking, PDF generation
+tools/                  # document extraction, evidence retrieval, metadata, validation, ranking
 utils/                  # deterministic formula helpers
 sample_rfps/             # four reproducible fictional proposal PDFs
 outputs/sample_run.json  # complete example evaluation export
@@ -81,7 +83,7 @@ Edit `.env` for live model evaluation. Never commit this file.
 streamlit run app.py
 ```
 
-Open the local URL printed by Streamlit. Navigate to **Criteria** to edit criterion names, descriptions, weights, maximum scores, and active status. Active weights must total exactly 100%. Go to **Evaluate suppliers**, upload multiple PDFs, review each name/date/experience rating, then select **Evaluate Suppliers**.
+Open the local URL printed by Streamlit. Navigate to **Criteria** to edit criterion names, descriptions, weights, maximum scores, and active status. Active weights must total exactly 100%. Go to **Evaluate suppliers**, upload multiple searchable PDFs or PPTX files, review each name/date/experience rating, then select **Evaluate Suppliers**.
 
 The four included PDFs are in `sample_rfps/`. To recreate them from source:
 
@@ -130,7 +132,7 @@ Sequential ranks are assigned only after the full sort. No LLM participates in s
 
 Missing criterion results are restored with a score of zero, explicit absent-evidence text, and a warning. Non-numeric/non-finite scores normalize to zero; scores outside the configured range are clipped with warnings. A model-supplied `max_score` never overrides SQLite. Duplicate and unknown criteria, malformed fields, model supplier-name mismatches, invalid risks, and absent evidence remain visible in the result. Malformed JSON is safely recovered only when one complete JSON object can be isolated; otherwise the run fails with a clear message.
 
-Supplier metadata is checked for non-empty unique names, valid non-future ISO dates, experience ratings from 0 to 10, and non-empty file bytes. PDF errors and model API failures/timeouts are shown to the user and the run is marked FAILED in SQLite. Database exceptions are surfaced rather than hidden.
+Supplier metadata is checked for non-empty unique names, valid non-future ISO dates, experience ratings from 0 to 10, and non-empty file bytes. PDF/PPTX extraction errors and model API failures/timeouts are shown to the user and the run is marked FAILED in SQLite. Database exceptions are surfaced rather than hidden.
 
 ## Testing
 
@@ -156,7 +158,7 @@ Coverage includes weighted scoring, criterion benchmarks and gaps, relative perf
    ```
 
    Leave `LLM_API_KEY` unset to use deterministic DEMO mode. Do not put live secrets in the repository or its README.
-5. Wait for the deployment to complete, open the generated `*.streamlit.app` URL, and run a batch with the four PDFs. Confirm the leaderboard, scorecards, JSON download, and run-history persistence. Check app logs from the Cloud workspace if startup fails.
+5. Wait for the deployment to complete, open the generated `*.streamlit.app` URL, and run a batch with the four PDFs. Confirm the comparison charts, criterion scorecards, retrieved-evidence audit, JSON download, and run-history persistence. Check app logs from the Cloud workspace if startup fails.
 
 The included SQLite database is local-file persistence. Streamlit Community Cloud's filesystem is not a managed durable database, so evaluation history may not survive redeployment or instance replacement. For durable public use, configure a persistent external SQLite volume or migrate the persistence layer to a managed database. A public deployment was not created as part of this repository implementation because that requires access to the user's GitHub and Streamlit accounts.
 
@@ -166,7 +168,7 @@ Run the app locally and capture the Overview, Criteria editor, Leaderboard, and 
 
 ## Assumptions and limitations
 
-- Uploaded PDFs must contain selectable text; OCR for scanned documents is not implemented.
+- Uploaded PDFs must contain selectable text; OCR for scanned documents is not implemented. PPTX text and tables are supported; legacy `.ppt` files are not.
 - LLM scores are qualitative model judgments and should be reviewed by procurement staff. Evidence excerpts and warnings are exposed for that review.
 - The demo evaluator is deterministic and intended only to make classroom demonstrations reproducible without credentials. It is not a substitute for a configured LLM or human procurement decision.
 - The sample experience rating is batch metadata entered by the user; the Evaluation Agent does not invent or infer it.
