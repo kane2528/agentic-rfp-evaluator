@@ -34,7 +34,7 @@ The run reloads the active criteria from SQLite and snapshots them against a gen
 
 ```text
 app.py
-agents/                 # orchestrator and Evaluation Agent
+rfp_agents/             # orchestrator and Evaluation Agent (unique package name for cloud imports)
 database/               # schema, seed, SQLite operations
 models/                 # Pydantic response contracts
 prompts/                # dynamic evidence-grounded prompt

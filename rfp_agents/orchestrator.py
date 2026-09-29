@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Callable
 
-from agents.evaluation_agent import EvaluationAgentError, evaluate
+from rfp_agents.evaluation_agent import EvaluationAgentError, evaluate
 from database.database import create_run, persist_results, save_run_export, update_run_status
 from tools.pdf_extractor import extract_pdf_text
 from tools.metadata import validate_supplier_metadata

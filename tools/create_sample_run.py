@@ -6,7 +6,7 @@ import os
 from datetime import date
 from pathlib import Path
 
-from agents.orchestrator import run_evaluation
+from rfp_agents.orchestrator import run_evaluation
 from database.database import initialize_database, seed_criteria, list_criteria
 
 

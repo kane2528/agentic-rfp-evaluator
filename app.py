@@ -10,7 +10,7 @@ import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 
-from agents.orchestrator import run_evaluation
+from rfp_agents.orchestrator import run_evaluation
 from database.database import get_run, initialize_database, list_criteria, list_runs, seed_criteria, update_criteria
 
 ROOT = Path(__file__).resolve().parent
