@@ -1,3 +1,8 @@
+[server]
+# Avoid Streamlit's file-watcher race while Python imports local modules.
+# Deployments update from Git; local developers can override this to "auto".
+fileWatcherType = "none"
+
 [theme]
 base = "light"
 primaryColor = "#0e7490"
