@@ -29,6 +29,7 @@ h1,h2,h3,h4 { font-family: 'Manrope', sans-serif; color: #14263d; letter-spacing
 .hero p { color: #d9eaf0; margin: 7px 0 0; font-size: 1rem; }
 .eyebrow { color: #67e8f9; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: .73rem; margin-bottom: 8px; }
 .metric-card { background: white; border: 1px solid #e4eaf1; border-radius: 14px; padding: 16px 18px; box-shadow: 0 3px 12px #14263d08; }
+.workflow-step { color: #14263d; }
 .metric-label { color: #64748b; font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
 .metric-value { color: #14263d; font-size: 1.45rem; font-weight: 800; margin-top: 5px; font-family: 'Manrope',sans-serif; }
 .section-note { color: #64748b; margin-top: -10px; margin-bottom: 14px; }
@@ -247,7 +248,7 @@ if page == "Overview":
     phases = st.columns(6)
     for col, (n, label) in zip(phases, [("01", "Extract PDF"), ("02", "Evaluate"), ("03", "Validate"), ("04", "Score"), ("05", "Benchmark & rank"), ("06", "Persist & present")]):
         with col:
-            st.markdown(f'<div class="metric-card"><div class="metric-label">STEP {n}</div><div style="font-weight:700;margin-top:8px">{label}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-label">STEP {n}</div><div class="workflow-step" style="font-weight:700;margin-top:8px">{label}</div></div>', unsafe_allow_html=True)
     st.markdown("### Get started")
     st.write("Open **Evaluate suppliers** to upload proposal PDFs. The four fictional proposals in `sample_rfps/` are ready for a demonstration run. Configure an OpenAI-compatible endpoint in `.env` to use live model evaluations; otherwise, the clearly marked deterministic demo evaluator is used.")
     if runs:
