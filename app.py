@@ -22,7 +22,7 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
-.stApp { background: #f5f7fb; }
+.stApp { background: #f5f7fb; color: #14263d; }
 h1,h2,h3,h4 { font-family: 'Manrope', sans-serif; color: #14263d; letter-spacing: -0.025em; }
 .hero { padding: 26px 30px; border-radius: 18px; background: linear-gradient(120deg,#10263f 0%,#164e63 62%,#0e7490 100%); color: white; margin: 4px 0 20px; box-shadow: 0 12px 30px #17324d20; }
 .hero h1 { color: white; margin: 0; font-size: 2rem; }
